@@ -45,8 +45,8 @@ def get_exam_events(major: str, level: int, exam_table: DataFrame) -> list[Calen
 
         event = CalendarEventRequest(
             summary=title,
-            start=EventDateTime(dateTime=dt_obj_start.isoformat(), timeZone="Africa/Cairo"),
-            end=EventDateTime(dateTime=dt_obj_end.isoformat(), timeZone="Africa/Cairo"),
+            start=EventDateTime(dateTime=dt_obj_start, timeZone="Africa/Cairo"),
+            end=EventDateTime(dateTime=dt_obj_end, timeZone="Africa/Cairo"),
         )
         events.append(event)
     if len(events) == 0:

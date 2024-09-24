@@ -11,12 +11,6 @@ def add_exams_to_calendar(
     calendarId: str,
 ) -> AddEventsResponse:
     for exam in exams:
-        event = {
-            "summary": exam.summary,
-            "description": exam.description,
-            "start": exam.start.model_dump(),
-            "end": exam.end.model_dump(),
-        }
         check = _check_conflict(service, exam, calendarId)
         if check:
             confirmation = input("Do you want to add event anyways? (y/n): ")
@@ -25,7 +19,7 @@ def add_exams_to_calendar(
                 continue
 
         try:
-            service.events().insert(calendarId=calendarId, body=event).execute()
+            service.events().insert(calendarId=calendarId, body=exam.model_dump()).execute()
         except Exception as e:
             return AddEventsResponse(code=500, message=str(e), event=exam)
 
@@ -33,11 +27,9 @@ def add_exams_to_calendar(
 
 
 def _check_conflict(service: CalendarService, event: CalendarEventRequest, calendarId: str) -> bool:
-    start_time_isoformat = (
-        dt.datetime.fromisoformat(event.start.dateTime) - dt.timedelta(hours=1)
-    ).isoformat() + "+03:00"
-    start_time_datetime = dt.datetime.fromisoformat(event.start.dateTime).timestamp()
-    end_time_datetime = dt.datetime.fromisoformat(event.end.dateTime).timestamp()
+    start_time_isoformat = (event.start.dateTime - dt.timedelta(hours=1)).isoformat() + "+03:00"
+    start_time_datetime = event.start.dateTime.timestamp()
+    end_time_datetime = event.end.dateTime.timestamp()
 
     calendar_events = (
         service.events()
@@ -56,8 +48,8 @@ def _check_conflict(service: CalendarService, event: CalendarEventRequest, calen
 
     for calendar_event in calendar_events["items"]:
         calendar_event = CalendarEventResponse.model_validate(calendar_event)
-        calendar_event_start_time = dt.datetime.fromisoformat(calendar_event.start.dateTime).timestamp()
-        calendar_event_end_time = dt.datetime.fromisoformat(calendar_event.end.dateTime).timestamp()
+        calendar_event_start_time = calendar_event.start.dateTime.timestamp()
+        calendar_event_end_time = calendar_event.end.dateTime.timestamp()
 
         if start_time_datetime < calendar_event_end_time and end_time_datetime > calendar_event_start_time:
             print_error(f"Event {event.summary} conflicts with event {calendar_event.summary}")

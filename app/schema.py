@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from datetime import datetime
+
+from pydantic import BaseModel, Field, field_serializer
 
 
 class EventAttendee(BaseModel):
@@ -7,8 +9,12 @@ class EventAttendee(BaseModel):
 
 
 class EventDateTime(BaseModel):
-    dateTime: str
+    dateTime: datetime
     timeZone: str
+
+    @field_serializer("dateTime")
+    def serialize_datetime(self, v: datetime, _info) -> str:
+        return v.isoformat()
 
 
 class CalendarEventRequest(BaseModel):
