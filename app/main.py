@@ -7,6 +7,7 @@ from commons import (
 )
 from schema import CalendarEventRequest
 from services.add_exams_to_calendar import add_exams_to_calendar
+from services.add_exams_to_ics_calendar import add_exams_to_ics_calendar
 from services.get_exam_events import get_exam_events
 from services.get_specific_calendar import get_specific_calendar
 
@@ -33,8 +34,18 @@ def main():
     service = authorize_and_return_service()
     if service is None:
         print_error("Failed to authorize")
-        return
+        ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
+        if ics_instead.lower() == "y":
+            return add_exams_to_ics_calendar(exams=events)
 
+    return google_calendar_flow(
+        events=events,
+        calendar_name=calendar_name,
+        service=service,
+    )
+
+
+def google_calendar_flow(events, calendar_name, service):
     selected_calendar = get_specific_calendar(
         service=service,
         calendar_name=calendar_name,
