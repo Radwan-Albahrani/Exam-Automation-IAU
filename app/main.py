@@ -1,3 +1,5 @@
+from math import e
+
 from commons import (
     authorize_and_return_service,
     get_exams_table,
@@ -31,9 +33,15 @@ def main():
         return
 
     calendar_name = input("Enter the name of the calendar to add the events to: ")
-    service = authorize_and_return_service()
-    if service is None:
-        print_error("Failed to authorize")
+    try:
+        service = authorize_and_return_service()
+        if service is None:
+            print_error("Failed to authorize")
+            ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
+            if ics_instead.lower() == "y":
+                return add_exams_to_ics_calendar(exams=events)
+    except Exception:
+        print("Failed to Authorize. Would you like to generate an ICS file instead?")
         ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
         if ics_instead.lower() == "y":
             return add_exams_to_ics_calendar(exams=events)

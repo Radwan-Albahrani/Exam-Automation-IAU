@@ -1,4 +1,5 @@
 import os
+from math import e
 from typing import cast
 
 from google.auth.transport.requests import Request
@@ -6,6 +7,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from jpype import JVMNotFoundException
 from pandas import DataFrame
 from protocols import CalendarService
 from tabula.io import read_pdf
@@ -38,11 +40,18 @@ def authorize_and_return_service() -> CalendarService | None:
 
 
 def get_exams_table(file_path: str) -> DataFrame:
+    file_path = file_path.strip('"')
     if not os.path.exists(file_path):
         print_error("The file does not exist")
         exit()
-
-    tables = read_pdf(file_path, pages="all", multiple_tables=True)
+    try:
+        tables = read_pdf(file_path, pages="all", multiple_tables=True)
+    except JVMNotFoundException:
+        print("You must instal JVM to use tabula-py")
+        exit()
+    except Exception:
+        print_error(f"An error occurred: {e}")
+        exit()
     if tables is None:
         print_error("No tables were found")
         exit()
@@ -89,6 +98,7 @@ def print_error(text: str):
     }
 
     print(f"{colors["red"]}{text}{colors["end"]}")
+
 
 def print_success(text: str):
     colors = {
