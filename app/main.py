@@ -1,5 +1,3 @@
-from math import e
-
 from commons import (
     authorize_and_return_service,
     get_exams_table,
@@ -32,7 +30,6 @@ def main():
         print_error("Aborted")
         return
 
-    calendar_name = input("Enter the name of the calendar to add the events to: ")
     try:
         service = authorize_and_return_service()
         if service is None:
@@ -48,20 +45,24 @@ def main():
 
     return google_calendar_flow(
         events=events,
-        calendar_name=calendar_name,
         service=service,
     )
 
 
-def google_calendar_flow(events, calendar_name, service):
+def google_calendar_flow(events, service):
     selected_calendar = get_specific_calendar(
         service=service,
-        calendar_name=calendar_name,
     )
 
     if selected_calendar is None:
         print_error("Failed to find the exams calendar")
-        return
+        print("Would you like to generate an ICS file instead?")
+        ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
+        if ics_instead.lower() == "y":
+            return add_exams_to_ics_calendar(exams=events)
+        else:
+            print("Aborted")
+            return
 
     response = add_exams_to_calendar(
         service=service,
