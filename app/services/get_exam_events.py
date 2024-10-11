@@ -1,5 +1,4 @@
 import datetime as dt
-import re
 
 from commons import print_error, print_success
 from pandas import DataFrame
@@ -14,19 +13,19 @@ def get_exam_events(major: str, level: int, exam_table: DataFrame) -> list[Calen
 
     events: list[CalendarEventRequest] = []
     for index, row in major_level_rows.iterrows():
-        # Parse the "Level" column
-        level_match = re.search(r"(\d+)(?:\s+for\s+(\w+))?", row["Level"])
-        if level_match:
-            row_level = int(level_match.group(1))
-            row_major = level_match.group(2)
+        level_string: str = row["Level"]
+        if len(level_string) > 1:
+            # index of first digit that matches level
+            level_index = level_string.find(str(level))
 
-            # Check if the level matches, or if it's a special case (e.g., "7 for AI")
-            if row_level != level or (row_major is not None and row_major.lower() != major.lower()):
+            # find the index of the next digit, or the end of the string
+            next_digit_index = level_index + 1
+            while next_digit_index < len(level_string) and not level_string[next_digit_index].isdigit():
+                next_digit_index += 1
+
+            substring_in_between = level_string[level_index + 1 : next_digit_index]
+            if major.lower() not in substring_in_between.lower():
                 continue
-        else:
-            print_error("Unexpected level format")
-            # If the level format is unexpected, skip this row
-            continue
 
         date_time = f"{row['Date']} {row['Time']}"
         date_time_start = date_time.split("\r")[1].split(" to ")[0]
