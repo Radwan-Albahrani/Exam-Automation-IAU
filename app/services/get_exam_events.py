@@ -53,7 +53,9 @@ def get_exam_events(major: str, level: int, exam_table: DataFrame) -> list[Calen
         exit()
 
     print_success(f"Found {len(events)} events")
+    print_success("============================= Events =============================")
     for event in events:
         print(f"{event.summary} - {event.start.dateTime} - {event.end.dateTime}")
+    print_success("===============================================================")
 
     return events
