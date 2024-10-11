@@ -33,15 +33,21 @@ def main():
     try:
         service = authorize_and_return_service()
         if service is None:
-            print_error("Failed to authorize")
+            print_error("Failed to authorize. Service not found")
             ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
             if ics_instead.lower() == "y":
                 return add_exams_to_ics_calendar(exams=events)
-    except Exception:
-        print("Failed to Authorize. Would you like to generate an ICS file instead?")
+            else:
+                print("Aborted")
+                return
+    except Exception as e:
+        print(f"Failed to Authorize: {e}")
         ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
         if ics_instead.lower() == "y":
             return add_exams_to_ics_calendar(exams=events)
+        else:
+            print("Aborted")
+            return
 
     return google_calendar_flow(
         events=events,
