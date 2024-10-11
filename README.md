@@ -16,11 +16,13 @@ git clone <repo-url>
 pip install -r requirements.txt
 ```
 
-### Setup Google Calendar API
+### Setup Google Calendar API (OPTIONAL)
 
 1. Create a new project in the Google Cloud Console and enable the Google Calendar API
 2. Download the credentials.json file and place it `secrets/credentials.json`
 3. Run the script
+
+if you don't want to use the Google Calendar API, you can simply run the script and it will generate the events in a `calendar.ics` file
 
 Follow [this](https://developers.google.com/calendar/api/quickstart/python) guide to quickstart the Google Calendar API
 

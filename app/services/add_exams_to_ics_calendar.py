@@ -16,7 +16,7 @@ def add_exams_to_ics_calendar(exams: list[CalendarEventRequest]):
         event.description = exam.description
         calendar.events.add(event)
 
-    with open("exams.ics", "w") as f:
+    with open("calendar.ics", "w") as f:
         f.writelines(calendar.serialize_iter())
 
     print_success("ICS file generated successfully")
