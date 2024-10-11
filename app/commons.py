@@ -2,6 +2,7 @@ import os
 from math import e
 from typing import cast
 
+from google.auth.credentials import TokenState
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -21,8 +22,12 @@ def authorize_and_return_service() -> CalendarService | None:
         creds = Credentials.from_authorized_user_file("secret/token.json")
 
     if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+        if creds and creds.token_state != TokenState.INVALID and creds.refresh_token:
+            try:
+                creds.refresh(Request())
+            except Exception as e:
+                print_error(f"An error occurred: {e}")
+                return
         else:
             flow = InstalledAppFlow.from_client_secrets_file("secret/credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
