@@ -3,5 +3,6 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.1
 mypy==1.11.2
 pydantic==2.9.2
-tabula-py[jpype]==2.9.3
+img2table==1.4.0
+pillow==11.0.0
 ics==0.7.2

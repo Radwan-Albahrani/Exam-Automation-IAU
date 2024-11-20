@@ -1,5 +1,4 @@
 import os
-from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -9,10 +8,11 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from img2table.document import PDF
+from img2table.ocr import TesseractOCR
 from jpype import JVMNotFoundException
 from pandas import DataFrame
 from protocols import CalendarService
-from tabula.io import read_pdf
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
@@ -51,16 +51,7 @@ def get_exams_table(file_path: str) -> DataFrame:
         print_error("The file does not exist")
         exit()
     try:
-        top = 115
-        left = 40
-        bottom = top + 420
-        right = left + 500
-        tables = read_pdf(
-            file_path,
-            pages="all",
-            encoding="utf-8",
-            area=(top, left, bottom, right),
-        )
+        tables = PDF(src=file_path).extract_tables(ocr=TesseractOCR(lang="eng"))
     except JVMNotFoundException:
         print("You must instal JVM to use tabula-py")
         exit()
@@ -74,9 +65,9 @@ def get_exams_table(file_path: str) -> DataFrame:
         print_error("No tables were found")
         exit()
 
-    tables = cast(list[DataFrame], tables)
-
-    exam_table = tables[0]
+    exam_table = tables[0][0].df
+    exam_table.columns = exam_table.iloc[0]
+    exam_table = exam_table[1:].reset_index(drop=True)
 
     if exam_table is None:
         print_error("The table was not found")
@@ -107,6 +98,7 @@ def _clean_date(df):
             return pd.Series({"Day": np.nan, "Date_only": value})
 
     df[["Day", "Date_only"]] = df["Date"].apply(extract_day_date)
+    df["Day"] = df["Day"].astype("object")
     df["Date_parsed"] = pd.to_datetime(df["Date_only"], dayfirst=True, errors="coerce")
 
     def forward_fill_dates(df):
