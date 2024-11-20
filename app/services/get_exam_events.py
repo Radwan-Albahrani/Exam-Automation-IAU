@@ -8,8 +8,6 @@ from schema import CalendarEventRequest, EventDateTime
 def get_exam_events(major: str, level: int, exam_table: DataFrame) -> list[CalendarEventRequest]:
     # find all rows where the major
 
-    print(exam_table)
-
     major_level_rows = exam_table[
         (exam_table["Offered to"].str.contains(major, case=False))
         & (
@@ -52,19 +50,16 @@ def get_exam_events(major: str, level: int, exam_table: DataFrame) -> list[Calen
         dt_obj_start = date_time_date.replace(hour=dt_obj_start.hour, minute=dt_obj_start.minute)
         dt_obj_end = dt.datetime.strptime(date_time_end, "%H:%M")
         dt_obj_end = date_time_date.replace(hour=dt_obj_end.hour, minute=dt_obj_end.minute)
-        print(dt_obj_start > dt_obj_end)
-        print(dt_obj_start, dt_obj_end)
+
         if dt_obj_start > dt_obj_end:
             dt_obj_end = dt_obj_end.replace(hour=dt_obj_end.hour + 12)
-
-        dt_obj_end = date_time_date.replace(hour=dt_obj_end.hour, minute=dt_obj_end.minute)
 
         title = f"{row['Course code']} - {row['Course name']} Exam"
 
         event = CalendarEventRequest(
             summary=title,
-            start=EventDateTime(dateTime=dt_obj_start, timeZone="Africa/Cairo"),
-            end=EventDateTime(dateTime=dt_obj_end, timeZone="Africa/Cairo"),
+            start=EventDateTime(dateTime=dt_obj_start, timeZone="Asia/Riyadh"),
+            end=EventDateTime(dateTime=dt_obj_end, timeZone="Asia/Riyadh"),
         )
         events.append(event)
     if len(events) == 0:
