@@ -44,29 +44,34 @@ DO NOT INCLUDE ANY EXTRA CONTENT. ONLY THE TABLE MUST BE IN THE IMAGE.
         print_error("Aborted")
         return
 
-    try:
-        service = authorize_and_return_service()
-        if service is None:
-            print_error("Failed to authorize. Service not found")
+    print("Would you like to add the events to the Google Calendar or generate an ICS file?")
+    google_or_ics = input("Google Calendar (y) or ICS file (n): ")
+    if google_or_ics.lower() == "y":
+        try:
+            service = authorize_and_return_service()
+            if service is None:
+                print_error("Failed to authorize. Service not found")
+                ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
+                if ics_instead.lower() == "y":
+                    return add_exams_to_ics_calendar(exams=events)
+                else:
+                    print("Aborted")
+                    return
+        except Exception as e:
+            print(f"Failed to Authorize: {e}")
             ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
             if ics_instead.lower() == "y":
                 return add_exams_to_ics_calendar(exams=events)
             else:
                 print("Aborted")
                 return
-    except Exception as e:
-        print(f"Failed to Authorize: {e}")
-        ics_instead = input("Do you want to generate an ICS file instead? (y/n): ")
-        if ics_instead.lower() == "y":
-            return add_exams_to_ics_calendar(exams=events)
-        else:
-            print("Aborted")
-            return
 
-    return google_calendar_flow(
-        events=events,
-        service=service,
-    )
+        return google_calendar_flow(
+            events=events,
+            service=service,
+        )
+    else:
+        return add_exams_to_ics_calendar(exams=events)
 
 
 def google_calendar_flow(events, service):
