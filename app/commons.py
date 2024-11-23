@@ -85,11 +85,15 @@ def get_exams_table(file_path: str) -> DataFrame:
     except Exception as e:
         print_error(
             f"""
-Information Extraction Failed with error{e}. Here are some tips to ensure your image is processed correctly:
+Information Extraction Failed with error: {e}.
+
+Here are some tips to ensure your image is processed correctly:
     1. Ensure the image is clear and has a high resolution.
     2. Ensure the table includes all the columns EXCEPT the "APPROVED" or "DRAFT" sections
     3. Ensure the image is edge to edge. A little white space is fine, but too much can cause issues.
     4. When taking the screenshot, ensure the table is the only thing in the image.
+
+Once you have made the necessary changes, try again.
 """
         )
         exit()
