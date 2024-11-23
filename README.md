@@ -16,6 +16,10 @@ git clone <repo-url>
 pip install -r requirements.txt
 ```
 
+### Install GhostScript
+
+you can install GhostScript from [here](https://ghostscript.com/releases/gsdnld.html)
+
 ### Setup Google Calendar API (OPTIONAL)
 
 1. Create a new project in the Google Cloud Console and enable the Google Calendar API

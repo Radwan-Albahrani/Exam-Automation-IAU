@@ -188,7 +188,7 @@ def print_error(text: str):
         "end": "\033[00m",
     }
 
-    print(f"{colors["red"]}{text}{colors["end"]}")
+    print(f"{colors['red']}{text}{colors['end']}")
 
 
 def print_success(text: str):
@@ -197,4 +197,4 @@ def print_success(text: str):
         "end": "\033[00m",
     }
 
-    print(f"{colors["green"]}{text}{colors["end"]}")
+    print(f"{colors['green']}{text}{colors['end']}")
