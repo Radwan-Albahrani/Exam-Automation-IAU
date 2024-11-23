@@ -3,9 +3,9 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.1
 mypy==1.11.2
 pydantic==2.9.2
-img2table==1.4.0
+
 ics==0.7.2
-python-doctr[torch]==0.10.0
 opencv-contrib-python-headless==4.10.0.84
 python-Levenshtein==0.26.1
-fuzzywuzzy==0.18.0
+camelot-py[base]==0.9.0
+PyPDF2==2.12.1
