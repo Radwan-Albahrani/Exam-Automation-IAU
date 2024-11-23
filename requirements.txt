@@ -3,7 +3,6 @@ google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.1
 mypy==1.11.2
 pydantic==2.9.2
-
 ics==0.7.2
 opencv-contrib-python-headless==4.10.0.84
 python-Levenshtein==0.26.1
