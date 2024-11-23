@@ -69,18 +69,30 @@ def get_exams_table(file_path: str) -> DataFrame:
         print_error("No tables were found")
         exit()
 
-    exam_table = tables[0].df
-    exam_table.columns = exam_table.iloc[0]
-    exam_table = exam_table[1:].reset_index(drop=True)
+    try:
+        exam_table = tables[0].df
+        exam_table.columns = exam_table.iloc[0]
+        exam_table = exam_table[1:].reset_index(drop=True)
 
-    if exam_table is None:
-        print_error("The table was not found")
+        if exam_table is None:
+            print_error("The table was not found")
+            exit()
+
+        exam_table = _clean_date(exam_table)
+        exam_table = _clean_offered_to(exam_table)
+        exam_table.drop(columns=[col for col in exam_table.columns if "Unnamed" in col], inplace=True)
+        return exam_table
+    except Exception as e:
+        print_error(
+            f"""
+Information Extraction Failed with error{e}. Here are some tips to ensure your image is processed correctly:
+    1. Ensure the image is clear and has a high resolution.
+    2. Ensure the table includes all the columns EXCEPT the "APPROVED" or "DRAFT" sections
+    3. Ensure the image is edge to edge. A little white space is fine, but too much can cause issues.
+    4. When taking the screenshot, ensure the table is the only thing in the image.
+"""
+        )
         exit()
-
-    exam_table = _clean_date(exam_table)
-    exam_table = _clean_offered_to(exam_table)
-    exam_table.drop(columns=[col for col in exam_table.columns if "Unnamed" in col], inplace=True)
-    return exam_table
 
 
 def _clean_offered_to(df):
