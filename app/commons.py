@@ -1,18 +1,25 @@
 import os
+import warnings
+from logging import getLogger
 
 import numpy as np
 import pandas as pd
+from fuzzywuzzy import process
 from google.auth.credentials import TokenState
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from img2table.document import PDF
-from img2table.ocr import TesseractOCR
-from jpype import JVMNotFoundException
+from img2table.document import Image
+from img2table.ocr import DocTR
 from pandas import DataFrame
 from protocols import CalendarService
+
+warnings.filterwarnings("ignore", "You are using `torch.load` with `weights_only=False`*.")
+
+logger = getLogger("pytorch")
+logger.disabled = True
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
@@ -51,10 +58,7 @@ def get_exams_table(file_path: str) -> DataFrame:
         print_error("The file does not exist")
         exit()
     try:
-        tables = PDF(src=file_path).extract_tables(ocr=TesseractOCR(lang="eng"))
-    except JVMNotFoundException:
-        print("You must instal JVM to use tabula-py")
-        exit()
+        tables = Image(src=file_path).extract_tables(ocr=DocTR())
     except Exception as e:
         print_error(f"An error occurred: {e}")
         exit()
@@ -65,7 +69,7 @@ def get_exams_table(file_path: str) -> DataFrame:
         print_error("No tables were found")
         exit()
 
-    exam_table = tables[0][0].df
+    exam_table = tables[0].df
     exam_table.columns = exam_table.iloc[0]
     exam_table = exam_table[1:].reset_index(drop=True)
 
@@ -74,9 +78,39 @@ def get_exams_table(file_path: str) -> DataFrame:
         exit()
 
     exam_table = _clean_date(exam_table)
+    exam_table = _clean_offered_to(exam_table)
     exam_table.drop(columns=[col for col in exam_table.columns if "Unnamed" in col], inplace=True)
-
     return exam_table
+
+
+def _clean_offered_to(df):
+    # List of correct majors
+    correct_majors = ["AI", "CIS", "CS", "CYS", "All"]
+
+    # Helper function to clean a single entry using fuzzy matching
+    def clean_entry(entry):
+        # Split if there are multiple majors (e.g., "CS and Al")
+        parts = entry.split(" and ")
+        # Use fuzzy matching to correct each part
+        corrected_parts = []
+        for part in parts:
+            # Find the closest match to the part in the list of correct majors
+            closest_match = process.extractOne(part, correct_majors)
+            assert closest_match is not None
+            # If the match is above a certain threshold, use the correct major
+            if closest_match[1] >= 90:
+                if len(part) == 2 and part[0] == "A":
+                    corrected_parts.append("AI")
+                else:
+                    corrected_parts.append(closest_match[0])
+            else:
+                corrected_parts.append(part)
+        # Rejoin with ' and ' if there were multiple parts
+        return " and ".join(corrected_parts)
+
+    # Apply the cleaning function to the 'Offered to' column
+    df["Offered to"] = df["Offered to"].apply(clean_entry)
+    return df
 
 
 def _clean_date(df):

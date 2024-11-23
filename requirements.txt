@@ -4,5 +4,8 @@ google-auth-oauthlib==1.2.1
 mypy==1.11.2
 pydantic==2.9.2
 img2table==1.4.0
-pillow==11.0.0
 ics==0.7.2
+python-doctr[torch]==0.10.0
+opencv-contrib-python-headless==4.10.0.84
+python-Levenshtein==0.26.1
+fuzzywuzzy==0.18.0
